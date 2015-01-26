@@ -1,0 +1,23 @@
+{% extends "auth/base.html" %}
+
+{%block form%}
+	<form action="{{ url_for('createAccount') }}" method=post>
+		<div class='form-group'>
+		  <input class='form-control' type=number min=1000 max=10000 name=creditlimit placeholder="Credit Limit ($)" required>
+		</div>
+		<div class='form-group'>
+		  <input  type=hidden name=csrftoken value="{{csrf_token()}}">
+			<select name = "apr" class='form-control' required>
+				<option value="">Please select an APR</option>
+				<option value=".15">15%</option>
+				<option value=".20">20%</option>
+				<option value=".25">25%</option>
+				<option value=".3">30%</option>
+				<option value=".35">35%</option>
+			</select>
+		</div>
+		<div class='form-group'>
+			<input class='form-control button-xlarge' type=submit value="Create Account">
+		</div>
+	</form>
+{%endblock%}

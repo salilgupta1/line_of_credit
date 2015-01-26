@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='col-md-12'>
+		<div class='col-md-2'></div>
+		<div class='col-md-8'>
+			<center>
+				<div class='row'>
+					<h2>Your Accounts</h2>
+					{% for a_id in ids %}
+						<h5><a href="{{ url_for('dashboard',account_id =a_id['id']) }}">Account Number: {{ a_id['id'] }}</a></h5>
+					{% endfor %}
+				</div>
+			</center>
+		</div>
+		<div class='col-md-2'></div>
+	</div>
+{% endblock %}

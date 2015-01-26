@@ -1,0 +1,20 @@
+{% extends "auth/base.html" %}
+
+{%block form%}
+	<form action="{{ url_for('createTransaction', account_id=account_id) }}" method=post>
+		<div class='form-group'>
+		  <input class='form-control' type=number name=amount placeholder="Amount" required>
+		</div>
+		<div class='form-group'>
+		  <input type=hidden name=csrftoken value="{{csrf_token()}}">
+			<select name = "trans_type" class='form-control' required>
+				<option value="">Please Transaction Type</option>
+				<option value="draw">draw</option>
+				<option value="payment">payment</option>
+			</select>
+		</div>
+		<div class='form-group'>
+			<input class='form-control button-xlarge' type=submit value="Create Transaction">
+		</div>
+	</form>
+{%endblock%}

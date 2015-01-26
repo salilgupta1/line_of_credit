@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='col-md-12'>
+		<div class='col-md-2'></div>
+		<div class='col-md-8'>
+			<center>
+				{% if error %}
+					<div class='row'><h3>{{error}}</h3></div>
+				{%else%}
+					<div class='row'>
+						<h2>Dashboard for Account {{account_id}}</h2>
+						<table>
+							</tbody>
+								<tr>
+									<td>APR</td>
+									<td>{{data[0]['apr']}}</td>
+								<tr>
+								<tr>
+									<td>Credit Limit</td>
+									<td>$ {{ data[0]['credit_limit']}}</td>
+								</tr>
+								<tr>
+									<td>Principal Due</td>
+									<td>$ {{ data[0]['principal']}}</td>
+								</tr>
+								<tr>
+									<td>Date Created</td>
+									<td>{{ data[0]['date_created']}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class='row'>
+						<h5><a href="{{url_for('viewTransactions', account_id = account_id)}}">View Transaction History</a></h5>
+						<h5><a href="{{url_for('createTransaction', account_id = account_id)}}">Make a Transaction</a></h5>
+					</div>
+				{%endif%}
+			</center>
+		</div>
+		<div class='col-md-2'></div>
+	</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='col-md-12'>
+		<div class='col-md-2'></div>
+		<div class='col-md-8'>
+			<center>
+				{% if error %}
+					<div class='row'><h3>{{error}}</h3></div>
+				{%else%}
+					<div class='row'>
+						<h2>Transactions History</h2>
+						<table>
+							<thead>
+								<tr>
+									<th>Amount</th>
+									<th>Type</th>
+									<th>Date Created</th>
+								</tr>
+							</thead>
+							<tbody>
+						{%for trans in data%}
+							<tr>
+								<td>${{trans['amount']}}</td>
+								<td>{{trans['trans_type']}}</td>
+								<td>{{trans['date_of_transaction']}}</td>
+							</tr>
+						{%endfor%}
+							</tbody>
+						</table>
+
+					</div>
+				{%endif%}
+			</center>
+		</div>
+		<div class='col-md-2'></div>
+	</div>
+{% endblock %}
