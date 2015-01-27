@@ -1,7 +1,9 @@
-Mini Web Application using Flask webframework and custom ORM. 
+<b>Mini Web Application using Flask webframework and custom ORM.</b>
 
-My implementation of line of credit problem
+[line-of-credit.herokuapp.com](http://line-of-credit.herokuapp.com) 
 
+<b>My implementation of line of credit problem</b>
+____________________________________________________________________________________________________________________________
 
 A line of credit product. This is like a credit card except theres no card. It should work like this:
 
