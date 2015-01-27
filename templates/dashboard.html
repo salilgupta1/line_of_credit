@@ -25,11 +25,12 @@
 									<td>$ {{ data[0]['principal']}}</td>
 								</tr>
 								<tr>
-									<td>Date Created</td>
-									<td>{{ data[0]['date_created']}}</td>
+									<td>Interest Due*</td>
+									<td>$ {{ data[0]['interest']}} </td>
 								</tr>
 							</tbody>
 						</table>
+						<h5>*Interest due at the end of 30 days if you didn't make anymore transactions</h5>
 					</div>
 					<div class='row'>
 						<h5><a href="{{url_for('viewTransactions', account_id = account_id)}}">View Transaction History</a></h5>
