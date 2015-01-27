@@ -9,7 +9,7 @@ class AccountManager:
 	def createAccount(self, vals):
 
 		# create a new account associated with a user
-		query = """INSERT INTO "accounts" (user_name, credit_limit, apr, principal, date_created) VALUES (%s,%s,%s,%s,%s) returning account_id;"""
+		query = """INSERT INTO "accounts" (user_name, credit_limit, apr) VALUES (%s,%s,%s) returning account_id;"""
 
 		return self.PostgresSQL.insert(query, vals)
 
@@ -17,23 +17,28 @@ class AccountManager:
 		query ="""SELECT user_name FROM "accounts" where account_id=%s""";
 		return self.PostgresSQL.read(query, (account_id,))
 
-	def updatePrincipal(self, new_principal, accountid):
+	def updateCredit(self, delta_principal, account_id):
 
 		# update the principal balance
-		query = """UPDATE "accounts" set principal = principal + %s where account_id=%s;"""
+		query = """UPDATE "accounts" set principal = principal + %s, credit_limit = credit_limit - %s WHERE account_id=%s returning principal, apr;"""
 
-		vals = (new_principal,accountid)
+		vals = (delta_principal, delta_principal, account_id)
 		
-		return self.PostgresSQL.update(query,vals)
+		return self.PostgresSQL.update(query,vals,fetch=True)
+
+	def updateInterest(self, interest, account_id):
+		query = """UPDATE "accounts" set interest =  %s WHERE account_id=%s;"""
+		vals = (interest, account_id)
+		self.PostgresSQL.update(query,vals)
 
 	def getAccountData(self, account_id):
 
 		# get meta data for a single account
-		query = """SELECT principal, credit_limit, apr, date_created FROM "accounts" where account_id=%s;"""
+		query = """SELECT principal, credit_limit, apr, interest FROM "accounts" where account_id=%s;"""
 		vals = (account_id,)
 
 		result = self.PostgresSQL.read(query, vals)
-		return self.PostgresSQL.makeDataDict(result, ("principal","credit_limit","apr","date_created"))
+		return self.PostgresSQL.makeDataDict(result, ("principal","credit_limit","apr","interest"))
 
 	def getAccounts(self, username):
 		

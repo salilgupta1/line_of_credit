@@ -9,7 +9,7 @@ class UserManager:
 	def createUser(self,vals):
 		# insert a user into the db
 		
-		query = """INSERT INTO "users" VALUES (%s,%s,%s,%s);"""
+		query = """INSERT INTO "users" VALUES (%s,%s,%s);"""
 		self.PostgresSQL.insert(query,vals)
 		
 	def getUserAuth(self, username):
