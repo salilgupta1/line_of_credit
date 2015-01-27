@@ -15,7 +15,7 @@
 								<tr>
 									<th>Amount</th>
 									<th>Type</th>
-									<th>Date Created</th>
+									<th>Transaction Day</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -23,7 +23,7 @@
 							<tr>
 								<td>${{trans['amount']}}</td>
 								<td>{{trans['trans_type']}}</td>
-								<td>{{trans['date_of_transaction']}}</td>
+								<td>{{trans['transaction_day']}}</td>
 							</tr>
 						{%endfor%}
 							</tbody>
