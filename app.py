@@ -12,15 +12,16 @@ app.permanent_session_lifetime = timedelta(seconds=86400)
 user = UserController()
 account = AccountController()
 
-# home page
+## home page
 @app.route('/')
 def index():
 	try:
 		if session['logged_in'] == True:
-			return redirect(url_for('getAccounts'))
+			return redirect(url_for('viewAccounts'))
 	except KeyError:
 		return render_template('index.html')
 
+## dashboard
 @app.route('/dashboard/<account_id>', methods=['GET'])
 def dashboard(account_id):
 	try:
@@ -33,16 +34,28 @@ def dashboard(account_id):
 	except KeyError:
 		return redirect(url_for('index'))
 
+## accounts
+@app.route('/accounts', methods=['GET'])
+def viewAccounts():
+	try:
+		if session['logged_in'] == True:
+			account_ids = account.getAccounts(session['username'])
+			return render_template('accounts.html',ids = account_ids)
+	except KeyError:
+		return redirect(url_for('index'))
+
 @app.route('/create_account', methods=['POST','GET'])
 def createAccount():
 	try:
 		if session['logged_in'] == True:
 			if request.method == 'POST':
 
+				# csrf check
 				csrf_token = session.pop('csrf_token', None)
 				if not csrf_token or csrf_token != request.form['csrftoken']:
 					return redirect(url_for('logout'))
 
+				# get form data and create account
 				credit_limit = request.form['creditlimit']
 				apr = request.form['apr']
 				a_id = account.createAccount(session['username'],credit_limit, apr)
@@ -53,14 +66,20 @@ def createAccount():
 	except KeyError:
 		return redirect(url_for('index'))
 
+## transactions
 @app.route('/view_transactions/<account_id>',methods=['GET'])
 def viewTransactions(account_id):
 	try:
 		if session['logged_in'] == True:
-			transactions = account.viewTransactions(session['username'],account_id)
-			if not transactions:
+
+			# attempt to get transaction data
+			transactions = account.getTransactions(session['username'],account_id)
+
+			if transactions == False:
+				# error
 				return render_template('view_transactions.html', error="This account is not associated with this user!")
 			else:
+				# render data
 				return render_template('view_transactions.html', data=transactions)
 	except KeyError:
 		return redirect(url_for('index'))
@@ -71,27 +90,20 @@ def createTransaction(account_id):
 		if session['logged_in'] == True:
 			if request.method =="POST":
 
+				# csrf check
 				csrf_token = session.pop('csrf_token', None)
 				if not csrf_token or csrf_token != request.form['csrftoken']:
 					return redirect(url_for('logout'))
 
+				# create transaction from form data
 				amount = request.form['amount']
 				trans_type = request.form['trans_type']
+				transaction_day = request.form['transaction_day']
 
-				account.createTransaction(account_id, amount, trans_type)
+				account.createTransaction(account_id, transaction_day, amount, trans_type)
 				return redirect(url_for('dashboard',account_id=account_id))
 			else:
 				return render_template('create_transaction.html', account_id=account_id)
-	except KeyError:
-		return redirect(url_for('index'))
-
-
-@app.route('/accounts', methods=['GET'])
-def getAccounts():
-	try:
-		if session['logged_in'] == True:
-			account_ids = account.getAccounts(session['username'])
-			return render_template('accounts.html',ids = account_ids)
 	except KeyError:
 		return redirect(url_for('index'))
 
@@ -103,14 +115,16 @@ def register():
 		# complete user reg
 		username = request.form['username']
 		password = request.form['password']
-		user.registerUser(username,password)
-
-		# add the user data to session
-		session['logged_in'] = True
-		session['username'] = username
-		return redirect(url_for('createAccount'))
-	else:		
-		return render_template('auth/register.html')
+		is_registered = user.registerUser(username,password)
+		if is_registered == True:
+			# add the user data to session
+			session['logged_in'] = True
+			session['username'] = username
+			return redirect(url_for('createAccount'))
+		else:
+			error = is_registered
+	
+	return render_template('auth/register.html',error=error)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -127,7 +141,7 @@ def login():
 			session['username'] = username
      
 			# go to user dashboard
-			return redirect(url_for('getAccounts'))
+			return redirect(url_for('viewAccounts'))
 		else:
 			error = is_authenticated
 	return render_template('auth/login.html', error=error)
