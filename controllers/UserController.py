@@ -26,10 +26,11 @@ class UserController():
 			salt = os.urandom(16).encode('base-64')
 			password+=salt
 			password = hashlib.sha1(password).hexdigest()
-			date_joined = datetime.date.today().strftime("%Y-%m-%d")
 
-			vals = (username, password, salt, date_joined)
+			vals = (username, password, salt)
 			self.UserManager.createUser(vals)
 			return True
 		except:
+			return "Username is already taken!"
 			raise
+
