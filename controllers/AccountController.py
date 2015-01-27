@@ -1,6 +1,6 @@
 from models.database.table_managers.AccountManager import AccountManager
 from models.database.table_managers.TransactionManager import TransactionManager
-import datetime
+
 class AccountController():
 
 	def __init__(self):
@@ -8,8 +8,7 @@ class AccountController():
 		self.TransactionManager = TransactionManager()
 
 	def createAccount(self, username, credit_limit, apr):
-		date_created = datetime.date.today().strftime("%Y-%m-%d")
-		vals = (username, credit_limit, apr, 0.0, date_created)
+		vals = (username, credit_limit, apr, 0.0)
 		return self.AccountManager.createAccount(vals)[0][0]
 
 	def getAccounts(self, username):
@@ -25,20 +24,36 @@ class AccountController():
 			# ideally raise a custom exception
 			return False
 
-	def createTransaction(self, account_id, amount, trans_type):
-		date_created = datetime.date.today().strftime("%Y-%m-%d")
-		self.TransactionManager.createTransaction((account_id, date_created, amount, trans_type))
-		principal = 0
+	def createTransaction(self, account_id, transaction_day, amount, trans_type):
+		delta_principal = 0
 		if trans_type == "draw":
-			principal = amount
+			delta_principal = amount
 		else:
-			principal = str(int(amount)*-1)
+			delta_principal = str(int(amount)*-1)
 
-		self.AccountManager.updatePrincipal(principal, account_id)
-
-		# function to update interest here ...
+		(new_principal, apr) = self.AccountManager.updateCredit(delta_principal, account_id)[0]
 		
-	def viewTransactions(self, username, account_id):
+		self.TransactionManager.createTransaction((account_id, transaction_day, amount, trans_type, new_principal))
+
+		interest = self.__calculateInterest(account_id, apr)
+
+		self.AccountManager.updateInterest(interest,account_id)
+
+	def __calculateInterest(self, account_id, apr):
+		result = self.TransactionManager.getInterestData(account_id)
+		interest = 0.0
+		i = 0
+		while i < len(result):
+			days = 0
+			if i == len(result)-1:
+				days = 30 - result[i][0]
+			else:
+				days = result[i+1][0] - result[i][0]
+			interest += float(result[i][1] * days/365 * apr)
+			i += 1
+		return interest
+
+	def getTransactions(self, username, account_id):
 		user = self.AccountManager.verifyUser(account_id)
 		if user[0][0] == username:
 			results =  self.TransactionManager.getTransactions(account_id)
