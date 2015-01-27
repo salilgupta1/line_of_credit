@@ -60,12 +60,16 @@ class PostgresSQL():
 		except:
 			raise
 
-	def update(self, query, vals):
+	def update(self, query, vals,fetch=False):
 		try:
+			result = None
 			conn = self.makeConn()
 			curr = conn.cursor()
 			curr.execute(query,vals)
+			if fetch:
+				result = curr.fetchall()
 			conn.commit()
 			conn.close()
+			return result
 		except:
 			raise
