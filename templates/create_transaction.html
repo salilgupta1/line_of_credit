@@ -1,7 +1,10 @@
 {% extends "auth/base.html" %}
 
 {%block form%}
-	<form action="{{ url_for('createTransaction', account_id=account_id) }}" method=post>
+{% if data['error'] %}
+	<div class='row'><h3>{{data['error']}}</h3></div>
+{% endif %}
+	<form action="{{ url_for('createTransaction', account_id=data['account_id']) }}" method=post>
 		<div class='form-group'>
 		  <input class='form-control' type=number min=1 name=amount placeholder="Amount" required>
 		</div>
