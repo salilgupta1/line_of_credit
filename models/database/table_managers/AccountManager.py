@@ -11,7 +11,7 @@ class AccountManager:
 		# create a new account associated with a user
 		query = """INSERT INTO "accounts" (user_name, credit_limit, apr) VALUES (%s,%s,%s) returning account_id;"""
 
-		return self.PostgresSQL.insert(query, vals)
+		return self.PostgresSQL.insert(query, vals,fetch=True)
 
 	def verifyUser(self, account_id):
 		query ="""SELECT user_name FROM "accounts" where account_id=%s""";
