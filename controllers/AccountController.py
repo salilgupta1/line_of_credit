@@ -8,8 +8,9 @@ class AccountController():
 		self.TransactionManager = TransactionManager()
 
 	def createAccount(self, username, credit_limit, apr):
-		vals = (username, credit_limit, apr, 0.0)
-		return self.AccountManager.createAccount(vals)[0][0]
+		vals = (username, credit_limit, apr)
+		result = self.AccountManager.createAccount(vals)
+		return result[0][0]
 
 	def getAccounts(self, username):
 		return self.AccountManager.getAccounts(username)['results']
@@ -25,35 +26,44 @@ class AccountController():
 			return False
 
 	def createTransaction(self, account_id, transaction_day, amount, trans_type):
-		delta_principal = 0
-		if trans_type == "draw":
-			delta_principal = amount
-		else:
-			delta_principal = str(int(amount)*-1)
+		try:
+			delta_principal = 0
+			if trans_type == "draw":
+				delta_principal = amount
+			else:
+				delta_principal = str(int(amount)*-1)
 
-		(new_principal, apr) = self.AccountManager.updateCredit(delta_principal, account_id)[0]
-		
-		self.TransactionManager.createTransaction((account_id, transaction_day, amount, trans_type, new_principal))
+			(new_principal, apr) = self.AccountManager.updateCredit(delta_principal, account_id)[0]
 
-		interest = self.__calculateInterest(account_id, apr)
+			self.TransactionManager.createTransaction((account_id, transaction_day, amount, trans_type, new_principal))
 
-		self.AccountManager.updateInterest(interest,account_id)
+			interest = self.__calculateInterest(account_id, apr)
+
+			self.AccountManager.updateInterest(interest,account_id)
+			return True
+		except:
+			# ideally better error handling 
+			return False
 
 	def __calculateInterest(self, account_id, apr):
-		result = self.TransactionManager.getInterestData(account_id)
-		interest = 0.0
-		i = 0
-		while i < len(result):
-			days = 0
-			if i == len(result)-1:
-				days = 30 - result[i][0]
-			else:
-				days = result[i+1][0] - result[i][0]
-			interest += float(result[i][1] * days/365 * apr)
-			i += 1
-		return interest
+		try:
+			result = self.TransactionManager.getInterestData(account_id)
+			interest = 0.0
+			i = 0
+			while i < len(result):
+				days = 0
+				if i == len(result)-1:
+					days = 30 - result[i][0]
+				else:
+					days = result[i+1][0] - result[i][0]
+				interest += float(result[i][1] * days/365 * apr)
+				i += 1
+			return interest
+		except:
+			raise
 
 	def getTransactions(self, username, account_id):
+
 		user = self.AccountManager.verifyUser(account_id)
 		if user[0][0] == username:
 			results =  self.TransactionManager.getTransactions(account_id)
