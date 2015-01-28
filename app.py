@@ -87,6 +87,8 @@ def viewTransactions(account_id):
 @app.route('/create_transaction/<account_id>',methods=['GET','POST'])
 def createTransaction(account_id):
 	try:
+		error = None
+		data = {"account_id":account_id, "error":error}
 		if session['logged_in'] == True:
 			if request.method =="POST":
 
@@ -100,10 +102,22 @@ def createTransaction(account_id):
 				trans_type = request.form['trans_type']
 				transaction_day = request.form['transaction_day']
 
-				account.createTransaction(account_id, transaction_day, amount, trans_type)
-				return redirect(url_for('dashboard',account_id=account_id))
+				# submit transaction to db
+				result = account.createTransaction(account_id, transaction_day, amount, trans_type)
+
+				# error
+				if result == False:
+					error = "You went over your credit limit!"
+					data['error'] = error
+					print data
+					return render_template('create_transaction.html',data=data)
+				else:
+					# no error so return to dashboard
+					return redirect(url_for('dashboard',account_id=account_id))
+
 			else:
-				return render_template('create_transaction.html', account_id=account_id)
+				# get request to page
+				return render_template('create_transaction.html', data=data)
 	except KeyError:
 		return redirect(url_for('index'))
 
