@@ -49,11 +49,14 @@ class PostgresSQL():
 		except:
 			raise
 
-	def insert(self, query, vals):
+	def insert(self, query, vals, fetch=False):
 		try:
+			result = None
 			conn = self.makeConn()
 			curr = conn.cursor()
-			result = curr.execute(query,vals)
+			curr.execute(query,vals)
+			if fetch:
+				result = curr.fetchall()
 			conn.commit()
 			conn.close()
 			return result
